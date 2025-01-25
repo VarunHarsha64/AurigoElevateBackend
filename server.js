@@ -10,6 +10,8 @@ const tenderRoutes = require('./routes/tenderRoutes');
 const negotiationRoutes = require('./routes/negotiationRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const authRoutes = require('./routes/authRoutes'); // New authentication routes
+const productRoutes = require('./routes/productRoutes'); // Product routes
+
 
 // Initialize express app
 const app = express();
@@ -22,10 +24,7 @@ app.use(cors()); // Allow cross-origin requests
 app.use(express.json()); // Parse incoming JSON requests
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.log('MongoDB connection error: ', err));
 
@@ -36,6 +35,7 @@ app.use('/api/tenders', tenderRoutes);         // Tender matching routes
 app.use('/api/negotiations', negotiationRoutes); // Negotiation routes
 app.use('/api/transactions', transactionRoutes); // Transaction routes
 app.use('/api/auth', authRoutes); // Authentication routes
+app.use('/api/products', productRoutes); // Product-related routes
 
 // Root route (can be customized)
 app.get('/', (req, res) => {

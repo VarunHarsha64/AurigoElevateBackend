@@ -1,4 +1,4 @@
-const Negotiation = require('../models/Negotiation');
+const Negotiation = require('../models/negotiationSchema.js');
 
 // Create a negotiation
 exports.createNegotiation = async (req, res) => {

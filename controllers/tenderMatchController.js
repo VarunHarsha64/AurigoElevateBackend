@@ -1,4 +1,4 @@
-const TenderMatch = require('../models/TenderMatch');
+const TenderMatch = require('../models/allocationSchema.js');
 
 // Create a tender match
 exports.createTenderMatch = async (req, res) => {

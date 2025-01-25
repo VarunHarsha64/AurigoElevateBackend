@@ -1,6 +1,11 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const clientSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
   name: {
     type: String,
     required: true,
@@ -16,22 +21,24 @@ const clientSchema = new mongoose.Schema({
       required: true,
     },
   },
-  productRequests: [{
-    productId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
+  productRequests: [
+    {
+      productId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+      quantity: {
+        type: Number,
+        required: true,
+      },
+      maxPrice: {
+        type: Number,
+        required: true,
+      },
     },
-    quantity: {
-      type: Number,
-      required: true,
-    },
-    maxPrice: {
-      type: Number,
-      required: true,
-    },
-  }],
+  ],
 });
 
-const Client = mongoose.model('Client', clientSchema);
+const Client = mongoose.model("Client", clientSchema);
 
 module.exports = Client;

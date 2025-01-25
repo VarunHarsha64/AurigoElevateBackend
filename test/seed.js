@@ -1,114 +1,103 @@
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const Vendor = require('./models/Vendor');
-const Client = require('./models/Client');
-const TenderMatch = require('./models/TenderMatch');
+const User = require('../models/userSchema'); // Adjust the path as needed
+const Vendor = require('../models/vendorSchema'); // Adjust the path as needed
+const Client = require('../models/clientSchema'); // Adjust the path as needed
+const Product = require('../models/productSchema'); // Adjust the path as needed
 
-// Load environment variables
-dotenv.config();
+// MongoDB URI
 
-// MongoDB connection
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected'))
-  .catch((err) => console.log('MongoDB connection error: ', err));
+// Connect to MongoDB
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log('MongoDB connected...'))
+  .catch((err) => console.log(err));
 
 // Seed data
+const products = [
+  { name: 'Product A', category: 'Electronics', description: 'High-end smartphone' },
+  { name: 'Product B', category: 'Electronics', description: 'Laptop with high specs' },
+  { name: 'Product C', category: 'Furniture', description: 'Comfortable office chair' },
+  { name: 'Product D', category: 'Furniture', description: 'Wooden desk' },
+  { name: 'Product E', category: 'Clothing', description: 'Formal shirt' },
+  { name: 'Product F', category: 'Clothing', description: 'Jeans' },
+];
+
 const vendors = [
   {
-    name: 'Vendor 1',
-    email: 'vendor1@example.com',
-    contact: '1234567890',
-    products: ['Product A', 'Product B'],
-    ratings: 4.5,
+    name: 'Vendor A',
+    contact: { email: 'vendorA@example.com', phone: '1234567890' },
+    products: [
+      { productId: null, price: 500, availability: 10, deliveryTime: 5 },
+      { productId: null, price: 800, availability: 20, deliveryTime: 7 },
+    ],
   },
   {
-    name: 'Vendor 2',
-    email: 'vendor2@example.com',
-    contact: '9876543210',
-    products: ['Product C', 'Product D'],
-    ratings: 4.0,
+    name: 'Vendor B',
+    contact: { email: 'vendorB@example.com', phone: '0987654321' },
+    products: [
+      { productId: null, price: 300, availability: 15, deliveryTime: 3 },
+      { productId: null, price: 200, availability: 25, deliveryTime: 6 },
+    ],
   },
-  {
-    name: 'Vendor 3',
-    email: 'vendor3@example.com',
-    contact: '1122334455',
-    products: ['Product E', 'Product F'],
-    ratings: 5.0,
-  }
 ];
 
 const clients = [
   {
-    name: 'Client 1',
-    email: 'client1@example.com',
-    contact: '5555555555',
-    requestedProducts: ['Product A', 'Product C'],
-    maxBudget: 1000,
+    name: 'Client A',
+    contact: { email: 'clientA@example.com', phone: '1122334455' },
+    productRequests: [
+      { productId: null, quantity: 5, maxPrice: 400 },
+      { productId: null, quantity: 3, maxPrice: 600 },
+    ],
   },
   {
-    name: 'Client 2',
-    email: 'client2@example.com',
-    contact: '6666666666',
-    requestedProducts: ['Product B', 'Product F'],
-    maxBudget: 1500,
+    name: 'Client B',
+    contact: { email: 'clientB@example.com', phone: '2233445566' },
+    productRequests: [
+      { productId: null, quantity: 2, maxPrice: 1000 },
+      { productId: null, quantity: 4, maxPrice: 800 },
+    ],
   },
-  {
-    name: 'Client 3',
-    email: 'client3@example.com',
-    contact: '7777777777',
-    requestedProducts: ['Product E', 'Product D'],
-    maxBudget: 1200,
-  }
 ];
 
-const tenderMatches = [
-  {
-    clientId: 'client1@example.com',
-    vendorId: 'vendor1@example.com',
-    matchedProducts: ['Product A'],
-    price: 800,
-  },
-  {
-    clientId: 'client2@example.com',
-    vendorId: 'vendor3@example.com',
-    matchedProducts: ['Product B'],
-    price: 1200,
-  },
-  {
-    clientId: 'client3@example.com',
-    vendorId: 'vendor2@example.com',
-    matchedProducts: ['Product D'],
-    price: 1000,
-  }
-];
-
-// Function to seed data
-const seedData = async () => {
+async function seedData() {
   try {
-    // Delete existing data
-    await Vendor.deleteMany();
-    await Client.deleteMany();
-    await TenderMatch.deleteMany();
+    // Clear the database
+    await Product.deleteMany({});
+    await Vendor.deleteMany({});
+    await Client.deleteMany({});
+    await User.deleteMany({});
 
-    // Insert vendors
-    await Vendor.insertMany(vendors);
-    console.log('Vendors seeded');
+    // Create product entries
+    const createdProducts = await Product.insertMany(products);
+    console.log('Products created:', createdProducts);
 
-    // Insert clients
-    await Client.insertMany(clients);
-    console.log('Clients seeded');
+    // Link productId in vendor's products array
+    vendors[0].products[0].productId = createdProducts[0]._id;
+    vendors[0].products[1].productId = createdProducts[1]._id;
+    vendors[1].products[0].productId = createdProducts[2]._id;
+    vendors[1].products[1].productId = createdProducts[3]._id;
 
-    // Insert tender matches
-    await TenderMatch.insertMany(tenderMatches);
-    console.log('Tender matches seeded');
+    // Create vendor entries
+    const createdVendors = await Vendor.insertMany(vendors);
+    console.log('Vendors created:', createdVendors);
 
-    // Close the connection
+    // Link productId in client's product requests
+    clients[0].productRequests[0].productId = createdProducts[0]._id;
+    clients[0].productRequests[1].productId = createdProducts[1]._id;
+    clients[1].productRequests[0].productId = createdProducts[2]._id;
+    clients[1].productRequests[1].productId = createdProducts[4]._id;
+
+    // Create client entries
+    const createdClients = await Client.insertMany(clients);
+    console.log('Clients created:', createdClients);
+
+    console.log('Data seeding complete!');
     mongoose.connection.close();
-    console.log('Database seeded successfully');
   } catch (err) {
     console.error('Error seeding data:', err);
+    mongoose.connection.close();
   }
-};
+}
 
-// Run the seeding function
 seedData();

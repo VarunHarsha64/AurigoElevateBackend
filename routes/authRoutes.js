@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User'); // Assuming this model exists for vendors/clients
+const User = require('../models/userSchema.js'); // Assuming this model exists for vendors/clients
 
 // Sign up route
 router.post('/signup', async (req, res) => {
@@ -13,7 +13,6 @@ router.post('/signup', async (req, res) => {
     if (user) {
       return res.status(400).json({ msg: 'User already exists' });
     }
-    
     user = new User({
       email,
       password,
@@ -28,7 +27,7 @@ router.post('/signup', async (req, res) => {
     await user.save();
     const payload = {
       user: {
-        id: user.id,
+        id: user._id,
         role: user.role
       }
     };
@@ -38,6 +37,7 @@ router.post('/signup', async (req, res) => {
     
     res.status(201).json({ token });
   } catch (err) {
+    console.log(err)
     res.status(500).json({ msg: 'Server Error', error: err.message });
   }
 });
@@ -51,22 +51,28 @@ router.post('/signin', async (req, res) => {
     if (!user) {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
-    
+    console.log(user)
+    console.log("JWT_SECRET:", process.env.JWT_SECRET);
+    console.log(password)
     const isMatch = await bcrypt.compare(password, user.password);
+    // console.log(isMatch)
     if (!isMatch) {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
     
     const payload = {
       user: {
-        id: user.id,
+        id: user._id,
         role: user.role
       }
     };
+    console.log(payload)
     
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    console.log(token)
     res.json({ token });
   } catch (err) {
+    console.log(err)
     res.status(500).json({ msg: 'Server Error', error: err.message });
   }
 });
