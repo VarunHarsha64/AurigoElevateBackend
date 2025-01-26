@@ -1,9 +1,13 @@
+const BiddingSchema = require('../models/BiddingSchema.js');
 const Client = require('../models/clientSchema.js');
+const { optimizeAllocationForClient } = require('../utils/optimizeAllocationForClient.js');
 
 // Create a new client
 exports.createClient = async (req, res) => {
   try {
     const { name, contact, productRequests } = req.body;
+
+    // Step 1: Save the new client
     const newClient = new Client({
       userId: req.body.id, // Associate client with the authenticated user
       name,
@@ -12,8 +16,25 @@ exports.createClient = async (req, res) => {
     });
 
     await newClient.save();
-    res.status(201).json(newClient);
+
+    // Step 2: Create optimal allotment for this client
+    const allocation = await optimizeAllocationForClient(newClient);
+    console.log(allocation)
+    // Step 3: Create bidding entries for each allocation
+    const biddingEntries = allocation.allocations.map((item) => ({
+      clientId: allocation.clientId,
+      productId: item.productId,
+      vendorId: item.vendorId,
+      quantity: item.quantityAllocated,
+      pricePerUnit: item.pricePerUnit,
+      totalCost: item.totalCost,
+    }));
+
+    await BiddingSchema.insertMany(biddingEntries); // Save bidding data to the database
+
+    res.status(201).json({ success: true, client: newClient, allocation });
   } catch (err) {
+    console.error('Error in createClient:', err.message);
     res.status(500).json({ msg: 'Server Error', error: err.message });
   }
 };

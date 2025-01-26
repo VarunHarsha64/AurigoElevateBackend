@@ -31,12 +31,12 @@ const clientSchema = new mongoose.Schema({
         type: Number,
         required: true,
       },
-      maxPrice: {
-        type: Number,
-        required: true,
-      },
     },
   ],
+  maxPrice: {
+    type: Number,
+    required: false,
+  },
 });
 
 const Client = mongoose.model("Client", clientSchema);

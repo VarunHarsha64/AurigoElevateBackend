@@ -6,7 +6,7 @@ const dotenv = require('dotenv');
 // Import routes
 const vendorRoutes = require('./routes/vendorRoutes');
 const clientRoutes = require('./routes/clientRoutes');
-const tenderRoutes = require('./routes/tenderRoutes');
+const allocationRoutes = require('./routes/allocationRoutes');
 const negotiationRoutes = require('./routes/negotiationRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const authRoutes = require('./routes/authRoutes'); // New authentication routes
@@ -31,7 +31,7 @@ mongoose.connect(process.env.MONGO_URI)
 // Routes setup
 app.use('/api/vendors', vendorRoutes);         // Vendor-related routes
 app.use('/api/clients', clientRoutes);         // Client-related routes
-app.use('/api/tenders', tenderRoutes);         // Tender matching routes
+app.use('/api/alloc', allocationRoutes);         // Tender matching routes
 app.use('/api/negotiations', negotiationRoutes); // Negotiation routes
 app.use('/api/transactions', transactionRoutes); // Transaction routes
 app.use('/api/auth', authRoutes); // Authentication routes

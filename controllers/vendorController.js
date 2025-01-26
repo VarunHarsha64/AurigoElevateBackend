@@ -7,7 +7,7 @@ exports.createVendor = async (req, res) => {
 
     console.log(req.body)
     const newVendor = new Vendor({
-      userId: req.user.id, // Associate vendor with the authenticated user
+      userId: req.body.id, // Associate vendor with the authenticated user
       name,
       contact,
       products,
